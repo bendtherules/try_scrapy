@@ -6,17 +6,19 @@ from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 from scrapy.shell import inspect_response
 import urlparse,urllib
+from scrapy import log
 
 base_url=r"http://www.lynda.com"
+items=[]
+log.start()
 class lynda_spider(CrawlSpider):
     name="get_lynda"
     # allowed_domains = ["dmoz.org"]  
-    start_urls=[base_url+"/allcourses"]
+    start_urls=[urlparse.urljoin(base_url,"allcourses")]
     
 
     def  parse(self,response):
         sel = Selector(response)
-        items=[]
 
         next_page =sel.xpath("//a[contains(@class,'see-more-results')]/@data-url").extract()
         if next_page:
@@ -34,12 +36,12 @@ class lynda_spider(CrawlSpider):
             final_url=urlparse.urlunparse(parsed_url)
 
             print final_url
-            if int(parsed_qs["page"])<=10:
+            if int(parsed_qs["page"])<=4:
                 return Request(final_url, self.parse)
 
         sel = Selector(response)
         course_a=sel.xpath(r'//*[@class="course-list"]//li//a')
-        print course_a.extract()
+        # print course_a.extract()
         titles=course_a.xpath("text()").extract()
         links=course_a.xpath("@href").extract()
         for i in range(len(titles)):
@@ -47,8 +49,9 @@ class lynda_spider(CrawlSpider):
             tmp_item["course_title"]=titles[i].strip()
             tmp_item["course_link"]=links[i]
             items.append(tmp_item)
-            print titles[i].strip()
+            # print titles[i].strip()
             # print links[i]
+        print len(items)
         return items
 
 # class NextPageLinkExtractor(SgmlLinkExtractor):
