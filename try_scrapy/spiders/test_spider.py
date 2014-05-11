@@ -1,30 +1,53 @@
 from scrapy.spider import Spider
 from scrapy.selector import Selector
+from scrapy.http import Request
 from try_scrapy.items import LyndaItem
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
+from scrapy.shell import inspect_response
+import urlparse,urllib
 
+base_url=r"http://www.lynda.com"
 class lynda_spider(CrawlSpider):
     name="get_lynda"
     # allowed_domains = ["dmoz.org"]  
-    start_urls=[r"file:///C:/Users/b/Downloads/Learn%20Web%20Development%20with%20Video%20Courses%20and%20Tutorials%20from%20lynda.com.htm"]
-    rules = (
-        Rule(SgmlLinkExtractor(attrs=["href","data-url"],allow=[r".*?page=\d+.*"])),
-    )
+    start_urls=[base_url+"/allcourses"]
+    
 
     def  parse(self,response):
         sel = Selector(response)
-        course_a=sel.xpath(r'//*[@class="course-list"]//li//*[@class="details-row"]/h3/a')
-        # print course_a.extract()
+        items=[]
+
+        next_page =sel.xpath("//a[contains(@class,'see-more-results')]/@data-url").extract()
+        if next_page:
+            next_page=next_page[0]
+
+            next_page=urlparse.urljoin(base_url,next_page)
+            parsed_url=urlparse.urlparse(next_page)
+            parsed_qs=urlparse.parse_qs(parsed_url.query)
+            parsed_qs.pop("ajax")
+            for tmp_qs in parsed_qs:
+                parsed_qs[tmp_qs]=parsed_qs[tmp_qs][0]
+            qs=urllib.urlencode(parsed_qs)
+            parsed_url=list(parsed_url)
+            parsed_url[-2]=qs
+            final_url=urlparse.urlunparse(parsed_url)
+
+            print final_url
+            if int(parsed_qs["page"])<=10:
+                return Request(final_url, self.parse)
+
+        sel = Selector(response)
+        course_a=sel.xpath(r'//*[@class="course-list"]//li//a')
+        print course_a.extract()
         titles=course_a.xpath("text()").extract()
         links=course_a.xpath("@href").extract()
-        items=[]
-        for i in range(len(course_a)):
+        for i in range(len(titles)):
             tmp_item=LyndaItem()
             tmp_item["course_title"]=titles[i].strip()
             tmp_item["course_link"]=links[i]
             items.append(tmp_item)
-            # print titles[i].strip()
+            print titles[i].strip()
             # print links[i]
         return items
 
