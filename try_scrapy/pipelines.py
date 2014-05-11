@@ -3,6 +3,8 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
+from try_scrapy import settings
+
 class TryScrapyPipeline(object):
     def process_item(self, item, spider):
         return item
@@ -12,7 +14,7 @@ import json
 class JsonWriterPipeline(object):
 
     def __init__(self):
-        self.file = open('output.json', 'wb')
+        self.file = open(settings.SAVED_JSON, 'wb')
 
     def open_spider(self,spider):
         self.file.write("[\n")

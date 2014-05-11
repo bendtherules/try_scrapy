@@ -18,3 +18,5 @@ ITEM_PIPELINES = {
 
     'try_scrapy.pipelines.JsonWriterPipeline': 800,
 }
+
+SAVED_JSON = 'output.json'

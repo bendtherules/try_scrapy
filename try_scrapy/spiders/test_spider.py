@@ -15,12 +15,14 @@ items=[]
 def do_nothing(*args,**kwargs):
     pass
 
-class lynda_spider(CrawlSpider):
+class lynda_spider(Spider):
     name="get_lynda"
     # allowed_domains = ["dmoz.org"]  
     start_urls=[urlparse.urljoin(base_url,"allcourses")]
     
-    
+    def __init__(self, max_pages=None, *args, **kwargs):
+        super(lynda_spider, self).__init__(*args, **kwargs)
+        self.max_pages=max_pages or 5
 
     def  parse(self,response):
         sel = Selector(response)
@@ -57,7 +59,7 @@ class lynda_spider(CrawlSpider):
             # print titles[i].strip()
             # print links[i]
         print len(items)
-        if int(parsed_qs["page"])<=4:
+        if int(parsed_qs["page"])<=self.max_pages:
             return Request(url=final_url)
         else:
             return items

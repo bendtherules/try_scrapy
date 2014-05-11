@@ -1,7 +1,5 @@
 Usage:
 
-    scrapy crawl get_lynda
+    scrapy crawl get_lynda [-a max_pages=10]
 
-For saving to json:
-
-    scrapy crawl get_lynda -o output.json -t json
+Saves to "output.json" by default ( Configurable as SAVED_JSON in settings.py)
