@@ -22,7 +22,8 @@ class lynda_spider(Spider):
     
     def __init__(self, max_pages=None, *args, **kwargs):
         super(lynda_spider, self).__init__(*args, **kwargs)
-        self.max_pages=max_pages or 5
+        self.max_pages=int(max_pages) or 5
+        print self.max_pages
 
     def  parse(self,response):
         sel = Selector(response)
