@@ -6,15 +6,20 @@ from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 from scrapy.shell import inspect_response
 import urlparse,urllib
-from scrapy import log
+# from scrapy import log
 
 base_url=r"http://www.lynda.com"
 items=[]
-log.start()
+# log.start()
+
+def do_nothing(*args,**kwargs):
+    pass
+
 class lynda_spider(CrawlSpider):
     name="get_lynda"
     # allowed_domains = ["dmoz.org"]  
     start_urls=[urlparse.urljoin(base_url,"allcourses")]
+    
     
 
     def  parse(self,response):
@@ -36,10 +41,10 @@ class lynda_spider(CrawlSpider):
             final_url=urlparse.urlunparse(parsed_url)
 
             print final_url
-            if int(parsed_qs["page"])<=4:
-                return Request(final_url, self.parse)
+        #     if int(parsed_qs["page"])<=4:
+        #         return Request(final_url, self.parse)
 
-        sel = Selector(response)
+        # sel = Selector(response)
         course_a=sel.xpath(r'//*[@class="course-list"]//li//a')
         # print course_a.extract()
         titles=course_a.xpath("text()").extract()
@@ -52,7 +57,11 @@ class lynda_spider(CrawlSpider):
             # print titles[i].strip()
             # print links[i]
         print len(items)
-        return items
+        if int(parsed_qs["page"])<=4:
+            return Request(url=final_url)
+        else:
+            return items
+
 
 # class NextPageLinkExtractor(SgmlLinkExtractor):
 #     # allow_domains=[r"http://www.lynda.com/"]

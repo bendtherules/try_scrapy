@@ -13,3 +13,8 @@ NEWSPIDER_MODULE = 'try_scrapy.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'try_scrapy (+http://www.yourdomain.com)'
+
+ITEM_PIPELINES = {
+
+    'try_scrapy.pipelines.JsonWriterPipeline': 800,
+}
